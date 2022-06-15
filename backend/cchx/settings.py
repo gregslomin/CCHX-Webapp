@@ -27,6 +27,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+ESI_SSO_CLIENT_ID = "6df1f70a1e5e454297ef8a6095590f29"
+ESI_SSO_CLIENT_SECRET = "kXKVvenpc11ZFPIjDjH3FObr8fOjwaWkB490Djy6"
+ESI_SSO_CALLBACK_URL = "http://localhost:8080/sso/callback"
+EVE_AUTH_LOGIN_SCOPES = ['esi-assets.read_assets.v1']
+LOGIN_URL = "/"
+LOGIN_REDIRECT_URL = "/"
+
 
 # Application definition
 
@@ -37,6 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'esi',
+    "eve_auth",
+    'webapp',
 ]
 
 MIDDLEWARE = [
@@ -123,3 +133,13 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTHENTICATION_BACKENDS = [
+
+    "eve_auth.backends.EveSSOBackend",
+
+    "django.contrib.auth.backends.ModelBackend",
+
+]
+
+
