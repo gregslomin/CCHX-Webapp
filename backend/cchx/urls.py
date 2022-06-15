@@ -15,7 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.urls import include, re_path
+
+from webapp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('fetch_assets/', views.FetchAssets, name='fetch assets'),
+    re_path(r'^sso/', include('esi.urls', namespace='esi')),
+    path("eve_auth/", include("eve_auth.urls")),
 ]
