@@ -41,7 +41,7 @@ def list_assets(request):
     return HttpResponse(json.dumps(item_response))
 
 @token_required(scopes="esi-assets.read_assets.v1")
-def FetchAssets(request, token):
+def fetch_assets(request, token):
     abyssal_type_ids = [49722, 49726, 47820, ]
     access_token = token.valid_access_token()
     assets = esi.client.Assets.get_characters_character_id_assets(character_id=token.character_id,
@@ -56,7 +56,7 @@ def FetchAssets(request, token):
                     location_id=asset['location_id'],
                     location_type=asset['location_type'],
                     character=request.user)
-        
+
         if item.id in old_asset_map:
             del old_asset_map[item.id]
 

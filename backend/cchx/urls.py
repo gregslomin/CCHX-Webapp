@@ -22,7 +22,7 @@ from webapp import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('list_assets/', views.list_assets, name='list assets'),
-    path('fetch_assets/', views.FetchAssets, name='fetch assets'),
+    path('fetch_assets/', views.fetch_assets, name='fetch assets'),
     re_path(r'^sso/', include('esi.urls', namespace='esi')),
     path("eve_auth/", include("eve_auth.urls")),
 ]
