@@ -4,6 +4,8 @@ from django.shortcuts import render
 from esi.decorators import token_required
 from django.http import HttpResponse
 from pprint import pprint
+from esi.models import *
+from django.shortcuts import redirect
 from esi.clients import EsiClientProvider
 from tqdm import *
 import json
@@ -11,6 +13,10 @@ import json
 esi = EsiClientProvider()
 
 from .models import Item, DogmaAttribute
+
+def login_redirect(request):
+    response = redirect('http://localhost:3000')
+    return response
 
 def list_assets(request):
     type_id = request.GET.get('type_id', None)
@@ -40,8 +46,9 @@ def list_assets(request):
 
     return HttpResponse(json.dumps(item_response))
 
-@token_required(scopes="esi-assets.read_assets.v1")
-def fetch_assets(request, token):
+def fetch_assets(request):
+    eve_character = request.user.eve_character
+    token = Token.get_token(eve_character.character_id, 'esi-assets.read_assets.v1')
     abyssal_type_ids = [49722, 49726, 47820, ]
     access_token = token.valid_access_token()
     assets = esi.client.Assets.get_characters_character_id_assets(character_id=token.character_id,

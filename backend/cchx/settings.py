@@ -15,6 +15,10 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+ALLOWED_HOSTS = ['*']
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -24,8 +28,6 @@ SECRET_KEY = 'django-insecure-uuj_!y+zq)lqb=yynoc#!cr(y+plmxbdacy-zabt1^37$s8erd
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
 
 ESI_SSO_CLIENT_ID = "6df1f70a1e5e454297ef8a6095590f29"
 ESI_SSO_CLIENT_SECRET = "kXKVvenpc11ZFPIjDjH3FObr8fOjwaWkB490Djy6"
@@ -44,12 +46,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'esi',
     "eve_auth",
     'webapp',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

@@ -20,6 +20,7 @@ from django.urls import include, re_path
 from webapp import views
 
 urlpatterns = [
+    path('', views.login_redirect),
     path('admin/', admin.site.urls),
     path('list_assets/', views.list_assets, name='list assets'),
     path('fetch_assets/', views.fetch_assets, name='fetch assets'),
