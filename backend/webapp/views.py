@@ -41,6 +41,7 @@ def list_assets(request):
             item_res['dps'] = round(dps, 3)
             item_res['rof'] = round((1 - rof) + 1, 3)
             item_res['damage'] = round(damage_modifier, 3)
+            item_res['cpu'] = round(attr_map[50], 3)
 
         item_response.append(item_res)
 
