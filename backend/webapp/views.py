@@ -14,7 +14,7 @@ esi = EsiClientProvider()
 
 from .models import Item, DogmaAttribute
 
-def login_redirect(request):
+def react_redirect(request):
     response = redirect('http://localhost:3000')
     return response
 
