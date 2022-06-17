@@ -26,7 +26,8 @@ export default function SortedTable({ columns, data }) {
                         // we can add them into the header props
                         <th {...column.getHeaderProps(column.getSortByToggleProps())}>
                             {column.render('Header')}
-                            {/* Add a sort direction indicator */}
+                            {}
+			    // Add a sort direction indicator
                             <span>
                     {column.isSorted
                         ? column.isSortedDesc
