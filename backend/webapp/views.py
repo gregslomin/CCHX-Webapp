@@ -38,9 +38,9 @@ def list_assets(request):
             damage_modifier = attr_map[64]
             rof = attr_map[204]
             dps = ((damage_modifier / rof) - 1) * 100
-            item_res['dps'] = round(dps, 2)
-            item_res['rof'] = round((1 - rof) + 1, 2)
-            item_res['damage'] = round(damage_modifier, 2)
+            item_res['dps'] = round(dps, 3)
+            item_res['rof'] = round((1 - rof) + 1, 3)
+            item_res['damage'] = round(damage_modifier, 3)
 
         item_response.append(item_res)
 

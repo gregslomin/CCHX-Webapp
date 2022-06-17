@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'esi',
-    "eve_auth",
+    'eve_auth',
     'webapp',
 ]
 
