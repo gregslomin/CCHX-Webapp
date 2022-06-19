@@ -24,4 +24,16 @@ class Item(models.Model):
     character = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     attributes = models.ManyToManyField(DogmaAttribute)
 
+class ItemType(models.Model):
+    type_id = models.IntegerField()
+    name = models.CharField(max_length=255)
+    icon_id = models.IntegerField()
+    group_id = models.IntegerField()
+
+class AttributeType(models.Model):
+    attr_id = models.IntegerField()
+    name = models.CharField(max_length=255)
+    displayName = models.CharField(max_length=255)
+
+
 

@@ -12,7 +12,7 @@ import json
 
 esi = EsiClientProvider()
 
-from .models import Item, DogmaAttribute
+from .models import Item, DogmaAttribute, ItemType, AttributeType
 
 def react_redirect(request):
     response = redirect('http://localhost:3000')
@@ -34,14 +34,19 @@ def list_assets(request):
         item_res = {'item_id': item.id, 'type_id': item.type_id}
         attr_map = {x.attribute_id:x.value for x in item.attributes.all()}
 
-        if item.type_id == 49722:
-            damage_modifier = attr_map[64]
-            rof = attr_map[204]
+        if item.type_id == ItemType.objects.get(name='Abyssal Magnetic Field Stabilizer').type_id:
+            damage_attr = AttributeType.objects.get(name='damageMultiplier').attr_id
+            rof_attr = AttributeType.objects.get(name='speedMultiplier').attr_id
+            cpu_attr = AttributeType.objects.get(name='cpu').attr_id
+            pg_attr = AttributeType.objects.get(name='power').attr_id
+            damage_modifier = attr_map[damage_attr]
+            rof = attr_map[rof_attr]
             dps = ((damage_modifier / rof) - 1) * 100
             item_res['dps'] = round(dps, 3)
             item_res['rof'] = round((1 - rof) + 1, 3)
             item_res['damage'] = round(damage_modifier, 3)
-            item_res['cpu'] = round(attr_map[50], 3)
+            item_res['cpu'] = round(attr_map[cpu_attr], 3)
+            item_res['power_grid'] = round(attr_map[pg_attr], 0)
 
         item_response.append(item_res)
 
@@ -50,8 +55,11 @@ def list_assets(request):
 def fetch_assets(request):
     eve_character = request.user.eve_character
     token = Token.get_token(eve_character.character_id, 'esi-assets.read_assets.v1')
-    abyssal_type_ids = [49722, 49726, 47820, ]
     access_token = token.valid_access_token()
+
+    valid_abyssals = ["Abyssal Magnetic Field Stabilizer", "Abyssal Heat Sink", "Abyssal Large Armor Plate"]
+    abyssal_type_ids = [x.type_id for x in ItemType.objects.filter(name=valid_abyssals)]
+    
     assets = esi.client.Assets.get_characters_character_id_assets(character_id=token.character_id,
                                                                   token=access_token).results()
 
