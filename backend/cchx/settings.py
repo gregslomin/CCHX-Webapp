@@ -32,7 +32,7 @@ DEBUG = True
 ESI_SSO_CLIENT_ID = "6df1f70a1e5e454297ef8a6095590f29"
 ESI_SSO_CLIENT_SECRET = "kXKVvenpc11ZFPIjDjH3FObr8fOjwaWkB490Djy6"
 ESI_SSO_CALLBACK_URL = "http://localhost:8080/sso/callback"
-EVE_AUTH_LOGIN_SCOPES = ['esi-assets.read_assets.v1']
+EVE_AUTH_LOGIN_SCOPES = ['esi-assets.read_assets.v1', 'esi-universe.read_structures.v1']
 LOGIN_URL = "/"
 LOGIN_REDIRECT_URL = "/"
 

@@ -1,7 +1,7 @@
 from webapp.models import Item, Station, ItemType, AttributeType
 
-def get_item_response(item, esi):
-    item_res = {'item_id': item.id, 'type_id': item.type_id, 'location':item.get_location_string(esi)}
+def get_item_response(item, esi, token):
+    item_res = {'item_id': item.id, 'type_id': item.type_id, 'location':item.get_location_string(esi, token), 'price':item.price}
     attr_map = {x.attribute_id:x.value for x in item.attributes.all()}
     try:
         if item.type_id == ItemType.objects.get(name='Abyssal Magnetic Field Stabilizer').type_id:

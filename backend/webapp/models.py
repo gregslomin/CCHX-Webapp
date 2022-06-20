@@ -18,19 +18,23 @@ class DogmaAttribute(models.Model):
 class Station(models.Model):
     system_id = models.IntegerField()
     name = models.CharField(max_length=128)
-    def get_station(station_id, esi):
+    def get_station(station_id, esi, token):
         try:
             station = Station.objects.get(id=station_id)
         except:
             station = None
-
-        if not station:
-            station_data = esi.client.Universe.get_universe_stations_station_id(station_id=station_id).results()
-            if station_data:
-                station = Station(id=station_data['station_id'],
-                                  system_id=station_data['system_id'],
-                                  name=station_data['name'])
-                station.save()
+        try:
+            if not station:
+                station_data = esi.client.Universe.get_universe_structures_structure_id(structure_id=station_id, token=token).results()
+                if not station_data:
+                    station_data = esi.client.Universe.get_universe_stations_station_id(station_id=station_id).results()
+                if station_data:
+                    station = Station(id=station_data.get('station_id', station_data.get('structure_id')),
+                                      system_id=station_data.get('system_id', station_data.get('solar_system_id')),
+                                      name=station_data['name'])
+                    station.save()
+        except:
+            pass
 
         return station
 
@@ -48,19 +52,26 @@ class Item(models.Model):
     character = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     attributes = models.ManyToManyField(DogmaAttribute)
 
-    def get_location_string(self, esi):
+    def get_location_string(self, esi, token):
         loc = 'Unknown'
         loc_type = self.location_type
 
         if loc_type == 'item':
-            item = Item.objects.get(id=self.location_id)
-            loc = '{} ({}) - {}'.format(ItemType.objects.get(type_id=item.type_id).name, item.custom_name, item.get_location_string(esi))
-        elif loc_type == 'station':
-            station = Station.get_station(self.location_id, esi)
-            loc = '{}'.format(station.name)
+            try:
+                item = Item.objects.get(id=self.location_id)
+                loc = '{} ({}) - {}'.format(ItemType.objects.get(type_id=item.type_id).name, item.custom_name, item.get_location_string(esi, token))
+                return loc
+            except:
+                pass
+
+        if loc_type == 'station' or 'Hangar' in self.location_flag:
+            station = Station.get_station(self.location_id, esi, token)
+            if station:
+                loc = '{}'.format(station.name)
+            return loc
         else:
             print('Unknown location_type {}'.format(loc_type))
-        return loc
+        return ''
 
 
 class ItemType(models.Model):

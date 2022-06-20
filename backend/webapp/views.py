@@ -39,6 +39,9 @@ def list_assets(request):
     location_string = request.GET.get('location', None)
     format = request.GET.get('format', 'json')
     sort = request.GET.get('sort', 'dps')
+    eve_character = request.user.eve_character
+    token = Token.get_token(eve_character.character_id, 'esi-assets.read_assets.v1')
+    access_token = token.valid_access_token()
 
     assets = None
     if type_id:
@@ -52,11 +55,11 @@ def list_assets(request):
     for item in items:
         if location_string:
             try:
-                if location_string not in item.get_location_string(esi):
+                if location_string not in item.get_location_string(esi, access_token):
                     continue
             except:
                 continue
-        item_response.append(item_lib.get_item_response(item, esi))
+        item_response.append(item_lib.get_item_response(item, esi, access_token))
 
     item_response.sort(reverse=True, key=lambda x: x.get(sort, 0))
 
