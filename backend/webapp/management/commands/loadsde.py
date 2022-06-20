@@ -6,10 +6,12 @@ import os
 import shutil
 from tqdm import tqdm
 import yaml
+from django.db import transaction
 
 class Command(BaseCommand):
     help = 'Load SDE'
 
+    @transaction.atomic
     def handle(self, *args, **options):
         with requests.get("https://eve-static-data-export.s3-eu-west-1.amazonaws.com/tranquility/sde.zip", stream=True) as r:
             # check header to get content length, in bytes

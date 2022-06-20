@@ -22,8 +22,9 @@ from webapp import views
 urlpatterns = [
     path('', views.react_redirect),
     path('admin/', admin.site.urls),
-    path('list_assets/', views.list_assets, name='list assets'),
-    path('fetch_assets/', views.fetch_assets, name='fetch assets'),
+    path('asset', views.asset, name='get/set asset'),
+    path('asset/list', views.list_assets, name='list assets'),
+    path('asset/fetch', views.fetch_assets, name='fetch assets'),
     re_path(r'^sso/', include('esi.urls', namespace='esi')),
     path("eve_auth/", include("eve_auth.urls")),
 ]
