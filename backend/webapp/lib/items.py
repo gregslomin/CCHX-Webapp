@@ -1,7 +1,7 @@
 from webapp.models import Item, Station, ItemType, AttributeType
 
 def get_item_response(item, esi):
-    item_res = {'item_id': item.id, 'type_id': item.type_id}
+    item_res = {'item_id': item.id, 'type_id': item.type_id, 'location':item.get_location_string(esi)}
     attr_map = {x.attribute_id:x.value for x in item.attributes.all()}
     try:
         if item.type_id == ItemType.objects.get(name='Abyssal Magnetic Field Stabilizer').type_id:
@@ -17,7 +17,6 @@ def get_item_response(item, esi):
             item_res['damage'] = round(damage_modifier, 3)
             item_res['cpu'] = round(attr_map[cpu_attr], 3)
             item_res['power_grid'] = round(attr_map[pg_attr], 0)
-            item_res['location'] = item.get_location_string(esi)
     except Exception as e:
         print(e)
         print(attr_map)

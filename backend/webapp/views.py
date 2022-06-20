@@ -1,6 +1,8 @@
-from django.shortcuts import render
+import json
+import csv
+import io
+import xlsxwriter
 
-# Create your views here.
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.db import transaction
@@ -8,7 +10,7 @@ from esi.clients import EsiClientProvider
 from esi.models import *
 from webapp.lib import items as item_lib
 from tqdm import *
-import json
+
 
 esi = EsiClientProvider()
 
@@ -35,6 +37,8 @@ def react_redirect(request):
 def list_assets(request):
     type_id = request.GET.get('type_id', None)
     location_string = request.GET.get('location', None)
+    format = request.GET.get('format', 'json')
+    sort = request.GET.get('sort', 'dps')
 
     assets = None
     if type_id:
@@ -54,9 +58,50 @@ def list_assets(request):
                 continue
         item_response.append(item_lib.get_item_response(item, esi))
 
-    return HttpResponse(json.dumps(item_response))
+    item_response.sort(reverse=True, key=lambda x: x.get(sort, 0))
 
-#@transaction.atomic
+    if 'json' in format:
+        return HttpResponse(json.dumps(item_response))
+    elif 'xls' in format:
+        output = io.BytesIO()
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+        bold = workbook.add_format({'bold': True})
+        highlight = workbook.add_format()
+        highlight.set_bg_color('#00ffff')
+        normal = workbook.add_format()
+
+        row = 0
+        width = [40, 8, 8, 8, 8, 90, 50]
+        header = ['name', 'dps', 'damage', 'rof', 'cpu', 'location', 'link']
+        for x in range(len(header)):
+            entry = header[x]
+            worksheet.write(row, x, entry, bold)
+            worksheet.set_column(x, x, width[x])
+
+
+        for item in item_response:
+            row += 1
+            data = [ItemType.objects.get(type_id=item['type_id']).name, str(item.get('dps', ' '))+'%', str(item.get('damage', ' ')), str(item.get('rof', ' ')), str(item.get('cpu', ' ')), item['location'], 'https://mutaplasmid.space/module/{}'.format(item['item_id'])]
+            for x in range(len(data)):
+                entry = data[x]
+                worksheet.write(row, x, entry, highlight if row % 2 == 0 else normal)
+        workbook.close()
+        return HttpResponse(output.getvalue(),
+                            headers={'Content-Disposition': 'attachment; filename="abyssals.xlsx"'},
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    else:
+        response = HttpResponse(
+            content_type='text/csv',
+            headers={'Content-Disposition': 'attachment; filename="abyssals.csv"'},
+        )
+        writer = csv.writer(response, delimiter='\t')
+        writer.writerow(['name', 'dps', 'damage', 'rof', 'cpu', 'location', 'link'])
+        for item in item_response:
+            writer.writerow([ItemType.objects.get(type_id=item['type_id']).name, str(item.get('dps', ' '))+'%', str(item.get('damage', ' ')), str(item.get('rof', ' ')), str(item.get('cpu', ' ')), item['location'], 'https://mutaplasmid.space/module/{}'.format(item['item_id'])])
+        return response
+
+@transaction.atomic
 def fetch_assets(request):
     eve_character = request.user.eve_character
     token = Token.get_token(eve_character.character_id, 'esi-assets.read_assets.v1')
