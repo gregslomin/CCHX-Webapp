@@ -10,12 +10,15 @@ from esi.clients import EsiClientProvider
 from esi.models import *
 from webapp.lib import items as item_lib
 from tqdm import *
-
+from colormap import rgb2hex
 
 esi = EsiClientProvider()
 
 from .models import Item, DogmaAttribute, ItemType, AttributeType
 
+
+def get_auth(request):
+    pass
 
 def asset(request):
     item_id = request.GET.get('item_id', None)
@@ -82,13 +85,42 @@ def list_assets(request):
             worksheet.write(row, x, entry, bold)
             worksheet.set_column(x, x, width[x])
 
+        mid_point = int(len(item_response) / 2)
+        for x in range(len(item_response)):
+            entry = item_response[x]
+            if entry['dps'] < 28.5:
+                mid_point = x
+                break
 
+        def calc_gradient(start_color, end_color, current, max):
+            r = end_color[0] - start_color[0]
+            g = end_color[1] - start_color[1]
+            b = end_color[2] - start_color[2]
+            r_factor = r/max
+            g_factor = g/max
+            b_factor = b/max
+            new_color = (start_color[0] + r_factor * current, start_color[1] + g_factor*current, start_color[2] + b_factor * current)
+            return rgb2hex(int(new_color[0]), int(new_color[1]), int(new_color[2]))
+
+
+        #end_mid = (146, 208, 80)
+        start = (0, 181, 80)
+        end_mid = (255, 255, 0)
+        mid = (255, 255, 0)
+        end = (194, 24, 24)
         for item in item_response:
             row += 1
+            highlight = workbook.add_format()
+            if row < mid_point:
+                color = calc_gradient(start, end_mid, row, mid_point)
+            else:
+                color = calc_gradient(mid, end, row-mid_point, len(item_response)-mid_point)
+
+            highlight.set_bg_color(color)
             data = [ItemType.objects.get(type_id=item['type_id']).name, str(item.get('dps', ' '))+'%', str(item.get('damage', ' ')), str(item.get('rof', ' ')), str(item.get('cpu', ' ')), item['location'], 'https://mutaplasmid.space/module/{}'.format(item['item_id'])]
             for x in range(len(data)):
                 entry = data[x]
-                worksheet.write(row, x, entry, highlight if row % 2 == 0 else normal)
+                worksheet.write(row, x, entry, highlight if x is 1 else None)
         workbook.close()
         return HttpResponse(output.getvalue(),
                             headers={'Content-Disposition': 'attachment; filename="abyssals.xlsx"'},

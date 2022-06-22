@@ -3,3 +3,4 @@ django-esi
 django-eve-auth
 django-cors-headers
 XlsxWriter
+colormap
